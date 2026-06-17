@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>お母さん、お誕生日おめでとう</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;500;600&family=Noto+Sans+JP:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* ナチュラル×上品 カラーパレット */
+  --ivory:#FBF7F2;        /* 背景アイボリー */
+  --ivory-deep:#F3EBE1;   /* 少し濃い背景 */
+  --rose:#C98A8A;         /* くすみローズ */
+  --rose-soft:#E4C3C0;    /* やわらかいローズ */
+  --sage:#8A9A7B;         /* セージグリーン */
+  --gold:#C2A36B;         /* ゴールド差し色 */
+  --text:#4A3B33;         /* 本文ブラウン */
+  --text-muted:#8C7B70;   /* サブテキスト */
+  --white:#FFFFFF;
+  --shadow:0 18px 50px rgba(74,59,51,0.12);
+  --shadow-soft:0 8px 30px rgba(74,59,51,0.08);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Noto Sans JP',sans-serif;
+  color:var(--text);
+  background:var(--ivory);
+  line-height:1.9;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+img{display:block;max-width:100%;}
+
+/* 見出し */
+h1,h2,h3,.serif{font-family:'Noto Serif JP',serif;font-weight:500;letter-spacing:0.04em;word-break:keep-all;line-height:1.45;}
+.script{font-family:'Cormorant Garamond',serif;font-style:italic;letter-spacing:0.02em;}
+
+/* スクロールプログレスバー */
+.scroll-indicator{
+  position:fixed;top:0;left:0;height:3px;width:0%;
+  background:linear-gradient(90deg,var(--rose),var(--gold));
+  z-index:300;transition:width 0.1s;
+}
+
+/* ========== あいことばロック ========== */
+#lock{
+  position:fixed;inset:0;z-index:250;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 50% 35%,#FBF3EE 0%,#EFE0D6 60%,#E4D0C2 100%);
+  transition:opacity 0.9s ease,visibility 0.9s ease;padding:24px;text-align:center;
+}
+#lock.unlocked{opacity:0;visibility:hidden;pointer-events:none;}
+.lock-icon{
+  width:60px;height:60px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,var(--rose-soft),var(--rose));
+  display:flex;align-items:center;justify-content:center;margin-bottom:22px;
+  box-shadow:0 8px 22px rgba(201,138,138,0.4);
+}
+.lock-icon span{color:#fff;font-size:1.5rem;}
+.lock-title{font-family:'Noto Serif JP',serif;font-size:1.25rem;color:var(--text);margin-bottom:8px;}
+.lock-sub{color:var(--text-muted);font-size:0.9rem;margin-bottom:26px;}
+.lock-form{display:flex;flex-direction:column;align-items:center;gap:14px;width:min(86vw,300px);}
+.lock-input{
+  width:100%;text-align:center;font-size:1.4rem;letter-spacing:0.3em;
+  padding:14px 16px;border:1px solid rgba(194,163,107,0.4);border-radius:8px;
+  background:#fff;color:var(--text);font-family:'Noto Sans JP',sans-serif;outline:none;
+  transition:border-color 0.2s;
+}
+.lock-input:focus{border-color:var(--rose);}
+.lock-btn{
+  width:100%;padding:13px;border:none;border-radius:30px;cursor:pointer;
+  background:linear-gradient(135deg,var(--rose),var(--gold));color:#fff;
+  font-size:1rem;font-family:'Noto Serif JP',serif;letter-spacing:0.12em;
+  box-shadow:0 6px 18px rgba(201,138,138,0.35);transition:transform 0.2s;
+}
+.lock-btn:hover{transform:translateY(-2px);}
+.lock-error{color:var(--rose);font-size:0.85rem;min-height:1.2em;margin-top:2px;opacity:0;transition:opacity 0.2s;}
+.lock-error.show{opacity:1;}
+.shake{animation:shake 0.42s;}
+@keyframes shake{0%,100%{transform:translateX(0);}20%,60%{transform:translateX(-8px);}40%,80%{transform:translateX(8px);}}
+
+/* ========== オープニング（封筒カード） ========== */
+#opening{
+  position:fixed;inset:0;z-index:200;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 50% 35%,#FBF3EE 0%,#F0E2D8 60%,#E7D4C7 100%);
+  transition:opacity 1.2s ease,visibility 1.2s ease;
+  padding:24px;
+}
+#opening.opened{opacity:0;visibility:hidden;pointer-events:none;}
+
+.envelope{
+  position:relative;width:min(86vw,360px);aspect-ratio:7/5;
+  background:linear-gradient(160deg,#FFFDFB,#F6ECE2);
+  border:1px solid rgba(194,163,107,0.35);
+  border-radius:6px;
+  box-shadow:var(--shadow);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;
+  transition:transform 0.5s ease,box-shadow 0.5s ease;
+  overflow:hidden;
+}
+.envelope:hover{transform:translateY(-6px);box-shadow:0 26px 60px rgba(74,59,51,0.2);}
+.envelope::before{
+  /* 封筒のフラップ */
+  content:"";position:absolute;top:0;left:0;right:0;height:58%;
+  background:linear-gradient(160deg,#F6ECE2,#EBDBCB);
+  clip-path:polygon(0 0,100% 0,50% 86%);
+  border-bottom:1px solid rgba(194,163,107,0.3);
+}
+.seal{
+  position:absolute;top:42%;left:50%;transform:translate(-50%,-50%);
+  width:54px;height:54px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,var(--rose-soft),var(--rose));
+  box-shadow:0 4px 14px rgba(201,138,138,0.45);
+  display:flex;align-items:center;justify-content:center;z-index:2;
+}
+.seal span{font-family:'Cormorant Garamond',serif;color:#fff;font-size:1.6rem;font-style:italic;}
+.envelope-label{position:absolute;bottom:16%;left:0;right:0;text-align:center;z-index:2;}
+.envelope-label .to{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--gold);font-size:1.05rem;letter-spacing:0.1em;}
+.envelope-label .to-jp{font-family:'Noto Serif JP',serif;color:var(--text);font-size:0.95rem;margin-top:2px;}
+
+.open-hint{
+  margin-top:28px;color:var(--text-muted);font-size:0.85rem;letter-spacing:0.18em;
+  display:flex;align-items:center;gap:8px;
+  animation:breathe 2.4s ease-in-out infinite;
+}
+.open-hint .dot{width:6px;height:6px;border-radius:50%;background:var(--rose);}
+@keyframes breathe{0%,100%{opacity:0.45;}50%{opacity:1;}}
+
+/* 花びら */
+.petal{
+  position:fixed;top:-40px;z-index:190;pointer-events:none;
+  width:18px;height:18px;
+  background:radial-gradient(circle at 30% 30%,#fff,var(--rose-soft));
+  border-radius:80% 0 80% 0;
+  opacity:0;
+}
+.petals-active .petal{animation:fall linear forwards;}
+@keyframes fall{
+  0%{opacity:0;transform:translateY(-40px) rotate(0deg);}
+  10%{opacity:0.95;}
+  100%{opacity:0;transform:translateY(102vh) rotate(540deg) translateX(60px);}
+}
+
+/* ========== 共通レイアウト ========== */
+.section-inner{max-width:1040px;margin:0 auto;padding:0 24px;}
+section{padding:96px 0;position:relative;}
+.eyebrow{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  color:var(--gold);font-size:1.15rem;letter-spacing:0.16em;
+  text-align:center;margin-bottom:10px;
+}
+.section-title{
+  font-size:clamp(1.6rem,4.6vw,2.5rem);text-align:center;color:var(--text);
+}
+.section-lead{
+  text-align:center;color:var(--text-muted);font-size:1rem;
+  max-width:620px;margin:18px auto 0;
+}
+.divider{display:flex;align-items:center;justify-content:center;gap:14px;margin:22px 0 0;}
+.divider .line{width:46px;height:1px;background:var(--gold);opacity:0.6;}
+.divider .mark{color:var(--rose);font-size:0.9rem;}
+
+/* スクロールアニメ */
+.fi{opacity:0;transform:translateY(28px);transition:opacity 1s ease,transform 1s ease;}
+.fi.visible{opacity:1;transform:translateY(0);}
+.fi.d1{transition-delay:0.15s;}
+.fi.d2{transition-delay:0.3s;}
+.fi.d3{transition-delay:0.45s;}
+
+/* ========== ヒーロー（タイトル） ========== */
+.hero{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;
+  position:relative;overflow:hidden;padding:120px 24px;
+}
+.hero-bg{
+  position:absolute;inset:0;
+  background:url('images/bouquet-roses.jpg') center/cover no-repeat;
+  transform:scale(1.08);filter:blur(3px);
+}
+.hero-bg::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(251,247,242,0.78),rgba(243,235,225,0.86));
+}
+.hero-content{position:relative;z-index:2;}
+.hero .eyebrow{font-size:1.35rem;}
+.hero h1{
+  font-size:clamp(2rem,7vw,3.6rem);font-weight:500;color:var(--text);
+  margin:14px 0 0;line-height:1.5;
+}
+.hero h1 .accent{color:var(--rose);}
+.hero-sub{margin-top:22px;color:var(--text-muted);font-size:clamp(0.95rem,2.6vw,1.15rem);}
+.hero-date{
+  margin-top:34px;font-family:'Cormorant Garamond',serif;font-style:italic;
+  color:var(--gold);font-size:1.1rem;letter-spacing:0.14em;
+}
+.scroll-cue{
+  position:absolute;bottom:32px;left:50%;transform:translateX(-50%);z-index:2;
+  color:var(--text-muted);font-size:0.75rem;letter-spacing:0.2em;text-align:center;
+}
+.scroll-cue .chev{display:block;width:12px;height:12px;margin:8px auto 0;
+  border-right:1.5px solid var(--rose);border-bottom:1.5px solid var(--rose);
+  transform:rotate(45deg);animation:bob 1.8s ease-in-out infinite;}
+@keyframes bob{0%,100%{transform:rotate(45deg) translateY(0);}50%{transform:rotate(45deg) translateY(6px);}}
+
+/* ========== ギャラリー ========== */
+.gallery{background:var(--ivory);}
+.work{
+  display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;
+  margin-top:72px;
+}
+.work:first-of-type{margin-top:56px;}
+.work.reverse .work-photo{order:2;}
+.work-photo{position:relative;}
+.work-photo img{
+  width:100%;border-radius:6px;box-shadow:var(--shadow);
+  border:6px solid var(--white);
+}
+.work-photo .tag{
+  position:absolute;top:-16px;left:-12px;
+  background:var(--rose);color:#fff;font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:1.05rem;padding:6px 18px;border-radius:30px;letter-spacing:0.08em;
+  box-shadow:0 6px 18px rgba(201,138,138,0.4);
+}
+.work-text .work-no{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--gold);font-size:1.1rem;letter-spacing:0.12em;}
+.work-text h3{font-size:clamp(1.3rem,3.2vw,1.7rem);margin:6px 0 16px;color:var(--text);}
+.work-text p{color:var(--text-muted);font-size:1rem;}
+.work-text .leaf{color:var(--sage);font-size:0.85rem;margin-top:18px;letter-spacing:0.1em;}
+
+.handmade-banner{
+  margin-top:80px;text-align:center;padding:44px 24px;
+  background:linear-gradient(135deg,var(--ivory-deep),#F6E8E4);
+  border-radius:10px;
+}
+.handmade-banner .big{
+  font-family:'Noto Serif JP',serif;font-size:clamp(1.5rem,5vw,2.3rem);
+  color:var(--rose);font-weight:500;
+}
+.handmade-banner p{color:var(--text-muted);margin-top:12px;}
+
+/* ========== ストーリー（結婚式の一日） ========== */
+.story{background:linear-gradient(180deg,var(--ivory-deep),var(--ivory));}
+.story-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:64px;}
+.story-card{
+  background:var(--white);border-radius:8px;overflow:hidden;box-shadow:var(--shadow-soft);
+}
+.story-card img{width:100%;aspect-ratio:4/3;object-fit:cover;}
+.story-card .cap{padding:20px 22px;}
+.story-card .cap .ttl{font-family:'Noto Serif JP',serif;color:var(--text);font-size:1.1rem;margin-bottom:6px;}
+.story-card .cap p{color:var(--text-muted);font-size:0.9rem;line-height:1.8;}
+/* スライドショー */
+.slideshow{
+  position:relative;max-width:760px;margin:56px auto 0;
+  border-radius:10px;overflow:hidden;box-shadow:var(--shadow);
+  aspect-ratio:3/2;background:var(--ivory-deep);border:6px solid var(--white);
+}
+.slide{position:absolute;inset:0;opacity:0;transition:opacity 1.4s ease;}
+.slide.active{opacity:1;}
+.slide img{width:100%;height:100%;object-fit:cover;}
+.slide-shade{position:absolute;left:0;right:0;bottom:0;height:70px;z-index:2;
+  background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,0.28));pointer-events:none;}
+.slide-dots{position:absolute;bottom:14px;left:0;right:0;display:flex;justify-content:center;gap:8px;z-index:3;}
+.slide-dots .dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.55);
+  transition:background 0.3s,transform 0.3s;box-shadow:0 1px 3px rgba(0,0,0,0.25);}
+.slide-dots .dot.active{background:#fff;transform:scale(1.35);}
+
+.memory{
+  margin-top:60px;text-align:center;max-width:680px;margin-left:auto;margin-right:auto;
+  font-family:'Noto Serif JP',serif;font-size:clamp(1.05rem,3vw,1.3rem);color:var(--text);
+  line-height:2;
+}
+.memory .hl{color:var(--rose);}
+
+/* ========== メッセージ（手紙） ========== */
+.message{background:var(--ivory);}
+.letter{
+  max-width:680px;margin:64px auto 0;background:var(--white);
+  border-radius:10px;box-shadow:var(--shadow);
+  padding:56px 44px;position:relative;
+  border:1px solid rgba(194,163,107,0.18);
+}
+.letter::before{
+  content:"";position:absolute;top:18px;left:18px;right:18px;bottom:18px;
+  border:1px solid rgba(194,163,107,0.25);border-radius:6px;pointer-events:none;
+}
+.letter .to{font-family:'Noto Serif JP',serif;font-size:1.25rem;color:var(--rose);margin-bottom:24px;}
+.letter p{font-size:1.02rem;color:var(--text);margin-bottom:20px;line-height:2.1;}
+.letter .sign{text-align:right;margin-top:36px;}
+.letter .sign .from{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--gold);font-size:1.1rem;}
+.letter .sign .name{font-family:'Noto Serif JP',serif;color:var(--text);font-size:1.05rem;margin-top:2px;}
+
+/* ========== これから ========== */
+.future{
+  background:linear-gradient(135deg,#F0E2D8,#F6E8E4);text-align:center;
+}
+.future h2{font-size:clamp(1.6rem,4.6vw,2.4rem);color:var(--text);}
+.future .promises{
+  display:flex;flex-wrap:wrap;justify-content:center;gap:16px;margin-top:44px;
+}
+.promise{
+  background:var(--white);border-radius:40px;padding:14px 28px;
+  box-shadow:var(--shadow-soft);font-size:0.98rem;color:var(--text);
+  display:flex;align-items:center;gap:10px;
+}
+.promise .ic{color:var(--rose);font-size:1rem;}
+.future .closing{
+  margin-top:52px;font-family:'Noto Serif JP',serif;
+  font-size:clamp(1.2rem,3.6vw,1.6rem);color:var(--rose);line-height:1.9;
+}
+
+/* ========== フッター ========== */
+footer{background:var(--text);color:#EDE3DA;text-align:center;padding:48px 24px;}
+footer .heart{color:var(--rose-soft);font-size:1.2rem;}
+footer .ft-from{font-family:'Cormorant Garamond',serif;font-style:italic;letter-spacing:0.1em;margin-top:10px;font-size:1.05rem;}
+footer .ft-note{color:#B7A89C;font-size:0.8rem;margin-top:8px;}
+
+/* ========== レスポンシブ ========== */
+@media (max-width:768px){
+  section{padding:64px 0;}
+  .work{grid-template-columns:1fr;gap:26px;margin-top:56px;}
+  .work.reverse .work-photo{order:0;}
+  .work-photo .tag{left:8px;top:-14px;}
+  .story-grid{grid-template-columns:1fr;gap:20px;}
+  .letter{padding:44px 26px;}
+  .letter::before{left:12px;right:12px;top:12px;bottom:12px;}
+}
+</style>
+</head>
+<body>
+
+<div class="scroll-indicator" id="scrollBar"></div>
+
+<!-- あいことばロック -->
+<div id="lock">
+  <div class="lock-icon"><span>&#10047;</span></div>
+  <div class="lock-title">あいことばを入力してね</div>
+  <div class="lock-sub">大切な人だけに贈る、特別なメッセージです。</div>
+  <div class="lock-form" id="lockForm">
+    <input id="lockInput" class="lock-input" type="password" inputmode="numeric" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;" autocomplete="off" aria-label="あいことば">
+    <button id="lockBtn" class="lock-btn">ひらく</button>
+    <div id="lockError" class="lock-error">あいことばが違うみたい</div>
+  </div>
+</div>
+
+<!-- オープニング（封筒カード） -->
+<div id="opening">
+  <div class="envelope" id="envelope" role="button" tabindex="0" aria-label="カードを開く">
+    <div class="seal"><span>K</span></div>
+    <div class="envelope-label">
+      <div class="to">For My Mother</div>
+      <div class="to-jp">大好きなお母さんへ</div>
+    </div>
+  </div>
+  <div class="open-hint"><span class="dot"></span>タップして開く<span class="dot"></span></div>
+</div>
+
+<!-- ヒーロー（タイトル） -->
+<section class="hero" id="top">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <p class="eyebrow fi">Happy Birthday</p>
+    <h1 class="fi d1">お母さん、<br><span class="accent">お誕生日おめでとう</span></h1>
+    <p class="hero-sub fi d2">世界で一番やさしい、わたしのお母さんへ。</p>
+    <p class="hero-date fi d3">with all my love and thanks</p>
+  </div>
+  <div class="scroll-cue">SCROLL<span class="chev"></span></div>
+</section>
+
+<!-- ギャラリー（主役：お母さんの作品） -->
+<section class="gallery">
+  <div class="section-inner">
+    <p class="eyebrow fi">Mother's Atelier</p>
+    <h2 class="section-title fi">すべて、お母さんの手作り。</h2>
+    <p class="section-lead fi d1">娘の人生で一番特別な日を、お母さんの花が彩ってくれました。<br>世界にひとつだけの、ふたつの作品をご紹介します。</p>
+    <div class="divider fi d1"><span class="line"></span><span class="mark">&#10047;</span><span class="line"></span></div>
+
+    <!-- 作品その一 -->
+    <div class="work fi">
+      <div class="work-photo">
+        <span class="tag">No.01</span>
+        <img src="images/bouquet-roses.jpg" alt="白い薔薇のウェディングブーケ">
+      </div>
+      <div class="work-text">
+        <span class="work-no">The First Work</span>
+        <h3>白い薔薇のウェディングブーケ</h3>
+        <p>挙式で手にしたのは、純白の薔薇とかすみ草でまとめられたブーケ。ふっくらと重なる花びらの一枚一枚に、娘の幸せを願う気持ちが込められています。</p>
+        <p class="leaf">&#10047; Roses &middot; Baby's Breath</p>
+      </div>
+    </div>
+
+    <!-- 作品その二 -->
+    <div class="work reverse fi">
+      <div class="work-photo">
+        <span class="tag">No.02</span>
+        <img src="images/bouquet-dried.jpg" alt="ドライフラワーのブーケ">
+      </div>
+      <div class="work-text">
+        <span class="work-no">The Second Work</span>
+        <h3>ドライフラワーのブーケ</h3>
+        <p>お色直しを彩ったのは、くすみピンクやベージュをやさしく束ねたドライフラワーのブーケ。ナチュラルであたたかく、ずっと飾っていられる宝物になりました。</p>
+        <p class="leaf">&#10047; Dried Flowers &middot; Forever Bouquet</p>
+      </div>
+    </div>
+
+    <!-- 持った姿 -->
+    <div class="work fi">
+      <div class="work-photo">
+        <img src="images/bride-bouquet.jpg" alt="ブーケを持つ花嫁姿">
+      </div>
+      <div class="work-text">
+        <span class="work-no">With Love</span>
+        <h3>お母さんの花に包まれて</h3>
+        <p>お母さんが作ってくれたブーケを抱えたこの瞬間が、本当に幸せでした。お花に囲まれた一日は、一生忘れない思い出です。</p>
+      </div>
+    </div>
+
+    <div class="handmade-banner fi">
+      <p class="big">花を束ねる手に、たくさんの愛情を。</p>
+      <p>どちらも、お母さんがひとつひとつ手作りしてくれた、特別なブーケです。</p>
+    </div>
+  </div>
+</section>
+
+<!-- お母さんとの思い出（スライドショー） -->
+<section class="story">
+  <div class="section-inner">
+    <p class="eyebrow fi">Memories with You</p>
+    <h2 class="section-title fi">お母さんと過ごした、大切な時間。</h2>
+    <p class="section-lead fi d1">小さな頃から今まで、いろんな場所へ一緒にお出かけしたね。<br>数えきれない思い出の、ほんの一部です。</p>
+
+    <div class="slideshow fi d1" id="slideshow">
+      <div class="slide active"><img src="images/memory1.jpg" alt="お母さんとの思い出 1"></div>
+      <div class="slide"><img src="images/memory2.jpg" alt="お母さんとの思い出 2"></div>
+      <div class="slide"><img src="images/memory3.jpg" alt="お母さんとの思い出 3"></div>
+      <div class="slide"><img src="images/memory4.jpg" alt="お母さんとの思い出 4"></div>
+      <div class="slide"><img src="images/memory5.jpg" alt="お母さんとの思い出 5"></div>
+      <div class="slide"><img src="images/memory6.jpg" alt="お母さんとの思い出 6"></div>
+      <div class="slide"><img src="images/memory7.jpg" alt="お母さんとの思い出 7"></div>
+      <div class="slide"><img src="images/memory8.jpg" alt="お母さんとの思い出 8"></div>
+      <div class="slide"><img src="images/memory9.jpg" alt="お母さんとの思い出 9"></div>
+      <div class="slide"><img src="images/memory10.jpg" alt="お母さんとの思い出 10"></div>
+      <div class="slide"><img src="images/memory11.jpg" alt="お母さんとの思い出 11"></div>
+      <div class="slide"><img src="images/memory12.jpg" alt="お母さんとの思い出 12"></div>
+      <div class="slide"><img src="images/memory13.jpg" alt="お母さんとの思い出 13"></div>
+      <div class="slide"><img src="images/memory14.jpg" alt="お母さんとの思い出 14"></div>
+      <div class="slide-shade"></div>
+      <div class="slide-dots">
+        <span class="dot active"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+      </div>
+    </div>
+
+    <p class="memory fi">横浜や四谷で、<span class="hl">一緒にお花を選んだ時間</span>も<br>かけがえのない大切な思い出だね。</p>
+  </div>
+</section>
+
+<!-- メッセージ（手紙） -->
+<section class="message">
+  <div class="section-inner">
+    <p class="eyebrow fi">A Letter for You</p>
+    <h2 class="section-title fi">お母さんへ。</h2>
+    <div class="letter fi d1">
+      <div class="to">お母さんへ</div>
+      <p>お母さん、いつもありがとう。</p>
+      <p>小さい時から今も変わらず、いつも応援してくれて、誰よりも褒めてくれて、一番に考えて動いてくれてありがとう。</p>
+      <p>人への愛情や優しさを教えてくれたのは、お母さんだよ。今、自信を持っていろいろなことに挑戦できるのも、お母さんがいつも優しく見守って、支えてくれていたからだよ。</p>
+      <p>去年の結婚式では、念願だったお母さんの作ってくれたブーケを持つことができて、すごくすごく嬉しかった。素敵なお花に囲まれて、本当に幸せだったよ。ありがとう。</p>
+      <p>横浜や四谷で、一緒にお花を選んだのも楽しかったね。</p>
+      <p>これからも変わらずよろしくね。また美味しいものを食べに行ったり、旅行に行ったりしようね。ライブも楽しみだね。</p>
+      <div class="sign">
+        <div class="from">With love &amp; thanks,</div>
+        <div class="name">真由より</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- これから -->
+<section class="future">
+  <div class="section-inner">
+    <p class="eyebrow fi">From Now On</p>
+    <h2 class="fi">これからも、ふたりで。</h2>
+    <div class="promises">
+      <div class="promise fi"><span class="material ic">&#10047;</span>美味しいものを食べに行こう</div>
+      <div class="promise fi d1"><span class="material ic">&#10047;</span>一緒に旅行に行こう</div>
+      <div class="promise fi d2"><span class="material ic">&#10047;</span>ライブを楽しもう</div>
+    </div>
+    <p class="closing fi d1">たくさんの「ありがとう」と「大好き」を込めて。<br>お母さん、お誕生日おめでとう。</p>
+  </div>
+</section>
+
+<footer>
+  <div class="heart">&#10084;</div>
+  <div class="ft-from">For My Dearest Mother</div>
+  <div class="ft-note">Happy Birthday &middot; made with love</div>
+</footer>
+
+<script>
+// あいことばロック
+(function(){
+  const lock=document.getElementById('lock');
+  const input=document.getElementById('lockInput');
+  const btn=document.getElementById('lockBtn');
+  const err=document.getElementById('lockError');
+  const form=document.getElementById('lockForm');
+  const PASS='121921';
+  function tryUnlock(){
+    if(input.value.trim()===PASS){
+      lock.classList.add('unlocked');
+      setTimeout(()=>{lock.remove();},900);
+    }else{
+      err.classList.add('show');
+      form.classList.add('shake');
+      input.value='';
+      setTimeout(()=>form.classList.remove('shake'),450);
+    }
+  }
+  btn.addEventListener('click',tryUnlock);
+  input.addEventListener('keydown',e=>{if(e.key==='Enter')tryUnlock();});
+})();
+
+// 封筒を開く演出
+(function(){
+  const opening=document.getElementById('opening');
+  const envelope=document.getElementById('envelope');
+  let opened=false;
+  function spawnPetals(){
+    const colors=['#E4C3C0','#C98A8A','#F3D9D6','#FBEEEA'];
+    for(let i=0;i<26;i++){
+      const p=document.createElement('div');
+      p.className='petal';
+      p.style.left=Math.random()*100+'vw';
+      const dur=4+Math.random()*4;
+      p.style.animationDuration=dur+'s';
+      p.style.animationDelay=Math.random()*1.5+'s';
+      const s=12+Math.random()*14;
+      p.style.width=s+'px';p.style.height=s+'px';
+      p.style.background='radial-gradient(circle at 30% 30%,#fff,'+colors[i%colors.length]+')';
+      document.body.appendChild(p);
+      setTimeout(()=>p.remove(),(dur+2)*1000);
+    }
+  }
+  function open(){
+    if(opened)return;opened=true;
+    document.body.classList.add('petals-active');
+    spawnPetals();
+    setTimeout(()=>opening.classList.add('opened'),250);
+    setTimeout(()=>{document.body.style.overflow='';},1400);
+  }
+  document.body.style.overflow='hidden';
+  envelope.addEventListener('click',open);
+  envelope.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')open();});
+  opening.addEventListener('click',e=>{if(e.target===opening)open();});
+})();
+
+// 思い出スライドショー（数秒ごとに自動切り替え）
+(function(){
+  const slides=document.querySelectorAll('#slideshow .slide');
+  const dots=document.querySelectorAll('#slideshow .dot');
+  if(slides.length<2)return;
+  let idx=0;
+  setInterval(()=>{
+    slides[idx].classList.remove('active');
+    if(dots[idx])dots[idx].classList.remove('active');
+    idx=(idx+1)%slides.length;
+    slides[idx].classList.add('active');
+    if(dots[idx])dots[idx].classList.add('active');
+  },3500);
+})();
+
+// スクロールプログレスバー
+const scrollBar=document.getElementById('scrollBar');
+window.addEventListener('scroll',()=>{
+  const h=document.documentElement.scrollHeight-window.innerHeight;
+  scrollBar.style.width=(window.scrollY/h*100)+'%';
+},{passive:true});
+
+// スクロールアニメーション
+document.addEventListener('DOMContentLoaded',()=>{
+  const items=Array.from(document.querySelectorAll('.fi'));
+  const show=el=>el.classList.add('visible');
+  if(!('IntersectionObserver' in window)){items.forEach(show);return;}
+  const io=new IntersectionObserver((entries,obs)=>{
+    entries.forEach(en=>{if(en.isIntersecting){show(en.target);obs.unobserve(en.target);}});
+  },{threshold:0.08});
+  items.forEach(el=>{
+    const r=el.getBoundingClientRect();
+    if(r.top<window.innerHeight*0.92)show(el);else io.observe(el);
+  });
+});
+</script>
+</body>
+</html>
