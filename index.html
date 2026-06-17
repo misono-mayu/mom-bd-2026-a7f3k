@@ -24,7 +24,7 @@
 }
 
 *{margin:0;padding:0;box-sizing:border-box;}
-html{scroll-behavior:smooth;}
+html{scroll-behavior:smooth;overflow-x:hidden;}
 body{
   font-family:'Noto Sans JP',sans-serif;
   color:var(--text);
@@ -32,6 +32,8 @@ body{
   line-height:1.9;
   -webkit-font-smoothing:antialiased;
   overflow-x:hidden;
+  width:100%;
+  max-width:100%;
 }
 img{display:block;max-width:100%;}
 
@@ -144,7 +146,7 @@ h1,h2,h3,.serif{font-family:'Noto Serif JP',serif;font-weight:500;letter-spacing
 @keyframes fall{
   0%{opacity:0;transform:translateY(-40px) rotate(0deg);}
   10%{opacity:0.95;}
-  100%{opacity:0;transform:translateY(102vh) rotate(540deg) translateX(60px);}
+  100%{opacity:0;transform:translateY(102vh) rotate(540deg) translateX(20px);}
 }
 
 /* ========== 共通レイアウト ========== */
@@ -546,7 +548,7 @@ footer .ft-note{color:#B7A89C;font-size:0.8rem;margin-top:8px;}
     for(let i=0;i<26;i++){
       const p=document.createElement('div');
       p.className='petal';
-      p.style.left=Math.random()*100+'vw';
+      p.style.left=Math.random()*90+'vw';
       const dur=4+Math.random()*4;
       p.style.animationDuration=dur+'s';
       p.style.animationDelay=Math.random()*1.5+'s';
